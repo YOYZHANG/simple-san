@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {    
+        "outDir": "build",
+        "target": "es6",
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "noImplicitAny": true,
+        "sourceMap": true
+      },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "test",
+        "dist",
+        "output"
+    ]
+}

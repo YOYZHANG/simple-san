@@ -1,0 +1,36 @@
+{
+  "name": "simple-san",
+  "version": "1.0.0",
+  "description": "the simplest san",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf dist",
+    "dev": "npm run clean && tsc && parcel ./src/index.js",
+    "build": "parcel build index.html",
+    "eslint": "npx eslint '**/*.js'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run eslint"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOYZHANG/simple-san.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YOYZHANG/simple-san/issues"
+  },
+  "homepage": "https://github.com/YOYZHANG/simple-san#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.12.0",
+    "@typescript-eslint/parser": "^4.12.0",
+    "eslint": "^7.17.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}

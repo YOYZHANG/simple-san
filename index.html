@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>start - hello</title>
+</head>
+
+<body>
+    <script src="./build/index.js"></script>
+    <script>
+    var MyApp = san.defineComponent({
+        template: '<p><div>1233</div>Hello {{name}}!</p>',
+        initData: function () {
+            return {};
+        }
+    });
+
+    var myApp = new MyApp();
+    myApp.data.assign({name: 'SAN'}, {silent: true});
+    myApp.attach(document.body);
+    
+    </script>
+</body>
+</html>
+
