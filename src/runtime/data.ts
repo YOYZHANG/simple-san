@@ -1,8 +1,8 @@
-class Data {
-    public parent;
-    public raw;
+export default class Data {
+    public parent: any;
+    public raw: any;
     public listeners: [];
-    constructor(data, parent) {
+    constructor(data: any, parent?: any) {
         this.parent = parent;
         this.raw = data || {};
         this.listeners = [];

@@ -1,4 +1,4 @@
-import {parseComponentTemplate} from 'san';
+import {parseComponentTemplate, defineComponent} from 'san';
 
 
 export default function initComponent (
