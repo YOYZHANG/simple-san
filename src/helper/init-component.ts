@@ -1,3 +1,4 @@
+// @ts-ignore
 import {parseComponentTemplate, defineComponent} from 'san';
 
 
@@ -23,5 +24,6 @@ export default function initComponent (
 
     if (!proto.hasOwnProperty('aNode')) {
         proto.aNode = parseComponentTemplate(clazz);
+        console.log(proto.aNode, 'anode');
     }    
 }

@@ -18,7 +18,7 @@ export const CompareResult = {
  * @param changeExpr 
  * @param expr 
  */
-export function changeExprCompare(changeExpr, expr) {
+export function changeExprCompare(changeExpr: any, expr: any) {
     const paths = expr.paths;
     const pathsLen = paths.length;
     const changePaths = changeExpr.paths;

@@ -1,4 +1,6 @@
+// @ts-nocheck
 const lifeCycleOwnIs = function() {
+    // @ts-ignore
     return this[name];
 }
 
@@ -20,10 +22,10 @@ export type LifeCycleType = {
 } & {[p in LifeCycleKEY]: boolean}
 
 
-export const LifeCycle: {[p in LifeCycleKEY]: (LifeCycleType)} = {
+export const LifeCycle: {[p in LifeCycleKEY]: LifeCycleType} = {
     start: {},
     
-    complied: {
+    compiled: {
         is: lifeCycleOwnIs,
         compiled: true
     },

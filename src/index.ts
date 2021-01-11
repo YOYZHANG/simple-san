@@ -10,3 +10,7 @@ const san = {
      */
     defineComponent: defineComponent,
 }
+
+
+
+export default san;

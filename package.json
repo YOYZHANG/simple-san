@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf dist",
-    "dev": "npm run clean && tsc && parcel ./src/index.js",
+    "dev": "npm run clean && tsc && parcel index.html",
     "build": "parcel build index.html",
     "eslint": "npx eslint '**/*.js'"
   },
@@ -32,5 +32,8 @@
     "eslint": "^7.17.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "san": "^3.10.1"
   }
 }

@@ -1,3 +1,4 @@
+import inherits from '../utils/inherits';
 import Component from './component';
 
 /**
@@ -12,11 +13,11 @@ export default function defineComponent(proto: {template: string, initData?: () 
         throw new Error('[FAKESAN FATAL]: defineComponent need a plain object.');
     }
 
-    function ComponentClass(options: any) {
-        return new Component(options);
+    function ComponentClass(option: any) {
+        Component.call(this, option);
     }
 
     ComponentClass.prototype = proto;
-
+    inherits(ComponentClass, Component);
     return ComponentClass;
 }

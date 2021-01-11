@@ -6,10 +6,12 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "noImplicitAny": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "allowJs": true
       },
     "include": [
-        "src"
+        "src",
+        "typing"
     ],
     "exclude": [
         "test",

@@ -5,6 +5,7 @@ import isDataChangeByElement from './data-change-by-el';
 import {changeExprCompare, CompareResult} from '../runtime/change-expr-compare';
 import createEl from '../dom/create-el';
 import insertBefore from '../dom/insert-before';
+// @ts-ignore
 import type {ANode} from 'san';
 import createNode from './create-node';
 class Component {
@@ -18,9 +19,14 @@ class Component {
     public initData: () => any;
     public needUpdateRender: boolean;
     public aNode: ANode;
+    public binds: any;
     public children: any [];
     constructor(options: {}) {
+        this.lifeCycle = LifeCycle.start;
+        this.children = [];
+
         const clazz = this.constructor;
+        // 解析 aNode 并初始化子 components
         initComponent(clazz, this);
         this.toPhase(LifeCycleKEY.compiled);
 
@@ -31,20 +37,22 @@ class Component {
         // this._sbindData = nodeSBindInit(this.aNode.directives.bind, this.data, this);
         this.toPhase(LifeCycleKEY.inited);
 
-        this.tagName = this.tagName || 'div';
+        this.tagName = this.aNode.tagName || 'div';
     }
 
     private toPhase(name: LifeCycleKEY) {
         if (!this.lifeCycle[name]) {
             this.lifeCycle = LifeCycle[name];
+            // @ts-ignore
             if (typeof this[name] === 'function') {
                 // 执行生命周期函数
+                // @ts-ignore
                 this[name]();
             }
         }
     }
 
-    public attach(parentEl) {
+    public attach(parentEl: any) {
         if (this.lifeCycle.attached) {
             return;
         }
@@ -73,7 +81,8 @@ class Component {
                     let updateExpr = bindItem.expr;
 
                     if (!isDataChangeByElement(change, this, setExpr)) {
-                        let relation = changeExprCompare(changeExpr, updateExpr, me.scope));
+                        // TODO: add this.scope
+                        let relation = changeExprCompare(changeExpr, updateExpr);
                         
                         // 变更表达式是目标表达式的子项
                         if (relation > CompareResult.EQUAL) {
@@ -102,7 +111,6 @@ class Component {
             let childANode = this.aNode.children[i];
             let child = createNode(childANode, this, this.data, this);
             this.children.push(child);
-
             child.attach(this.elementNode);
         }
 
