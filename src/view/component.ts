@@ -8,9 +8,12 @@ import insertBefore from '../dom/insert-before';
 // @ts-ignore
 import type {ANode} from 'san';
 import createNode from './create-node';
+import nextTick from '../utils/next-tick';
 class Component {
     static template: string;
     private contentReady: boolean;
+    private dataChangeArr: any[] | null;
+    private sbindData: any;
     public data: any;
     public components: any;
     public lifeCycle: LifeCycleType;
@@ -24,6 +27,7 @@ class Component {
     constructor(options: {}) {
         this.lifeCycle = LifeCycle.start;
         this.children = [];
+        this.binds = [];
 
         const clazz = this.constructor;
         // 解析 aNode 并初始化子 components
@@ -33,11 +37,26 @@ class Component {
 
         var initData = typeof this.initData === 'function' && this.initData() || {}
         this.data = new Data(initData);
-        // this.initDataChanger();
-        // this._sbindData = nodeSBindInit(this.aNode.directives.bind, this.data, this);
+        this.initDataChanger();
+        // TODO: 实现s-bind
+        // this.sbindData = nodeSBindInit(this.aNode.directives.bind, this.data, this);
         this.toPhase(LifeCycleKEY.inited);
 
         this.tagName = this.aNode.tagName || 'div';
+    }
+
+    private initDataChanger() {
+        const me = this;
+        function dataChanger(change: any) {
+            if(!me.dataChangeArr) {
+                nextTick(me.update, me);
+                me.dataChangeArr = [];
+            }
+
+            me.dataChangeArr.push(change);
+        }
+        console.log(this.data);
+        this.data.listen(dataChanger);
     }
 
     private toPhase(name: LifeCycleKEY) {
@@ -67,35 +86,42 @@ class Component {
         this.toPhase(LifeCycleKEY.attached);
     }
 
-    private update(changes: []) {
+    private update(changes: any[]) {
+        console.log('update', changes);
         if (this.lifeCycle.disposed) {
             return;
         }
-        if (changes) {
-            for (let changeIndex = 0; changeIndex < changes.length; changeIndex++) {
-                let change: any = changes[changeIndex];
-                let changeExpr = change.expr;
-                for (let bindIndex = 0; bindIndex < this.binds.length; bindIndex++) {
-                    let bindItem = this.binds[bindIndex];
-                    let setExpr = bindItem.name;
-                    let updateExpr = bindItem.expr;
+        // 不太明白，但先这种方式传入
+        changes = this.dataChangeArr;
+        console.log(changes, 'changes after');
 
-                    if (!isDataChangeByElement(change, this, setExpr)) {
-                        // TODO: add this.scope
-                        let relation = changeExprCompare(changeExpr, updateExpr);
+        // if (changes) {
+        //     for (let changeIndex = 0; changeIndex < changes.length; changeIndex++) {
+        //         let change: any = changes[changeIndex];
+        //         let changeExpr = change.expr;
+        //         for (let bindIndex = 0; bindIndex < this.binds.length; bindIndex++) {
+        //             let bindItem = this.binds[bindIndex];
+        //             let setExpr = bindItem.name;
+        //             let updateExpr = bindItem.expr;
+
+        //             if (!isDataChangeByElement(change, this, setExpr)) {
+        //                 // TODO: add this.scope
+        //                 let relation = changeExprCompare(changeExpr, updateExpr);
                         
-                        // 变更表达式是目标表达式的子项
-                        if (relation > CompareResult.EQUAL) {
-                            // do something
-                        }
-                        else {
-                            // do something
-                            // this.data.set(setExpr);
-                        }
-                    }
-                }
-            }
-        }
+        //                 // 变更表达式是目标表达式的子项
+        //                 if (relation > CompareResult.EQUAL) {
+        //                     // do something
+        //                 }
+        //                 else {
+        //                     // do something
+        //                     // this.data.set(setExpr);
+        //                 }
+        //             }
+        //         }
+        //     }
+
+        //     this.dataChangeArr && (this.dataChangeArr = null);
+        // }
 
 
         this.toPhase(LifeCycleKEY.updated);

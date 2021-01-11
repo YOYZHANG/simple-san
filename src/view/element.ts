@@ -36,18 +36,19 @@ export default class Element {
         }
 
         insertBefore(this.el, parentEl);
-
         this.handleChildNodes();
         this.lifeCycle = LifeCycle.attached;
     }
 
     private handleChildNodes() {
-        if (!this.contentReady) {
+        if (this.contentReady) {
             return;
         }
 
+        console.log(this.aNode.children, 'this.aNode.children');
         for (let i = 0; i < this.aNode.children.length; i++) {
             let childANode = this.aNode.children[i];
+            console.log(childANode, 'childANode');
             let child = createNode(childANode, this, this.scope, this.owner);
             this.children.push(child);
             
