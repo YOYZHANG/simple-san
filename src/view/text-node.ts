@@ -1,6 +1,6 @@
 import insertBefore from '../dom/insert-before';
 import {LifeCycle, LifeCycleKEY, LifeCycleType} from '../helper/life-cycle';
-import createNode from './create-node';
+import evalExpr from '../runtime/eval-expr';
 
 export default class TextNode {
     public tagName: string;
@@ -27,9 +27,7 @@ export default class TextNode {
     }
 
     public attach(parentEl: any) {
-        this.content = this.aNode.textExpr!.value;
-        // evalExpr(this.aNode.textExpr, this.scope, this.owner) || '';
-
+        this.content = evalExpr(this.aNode.textExpr, this.scope, this.owner) || '';
         // Todo: 处理aNode.textExpr.original的情况
         this.el = document.createTextNode(this.content);
         insertBefore(this.el, parentEl)

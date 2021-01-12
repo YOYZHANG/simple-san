@@ -1,4 +1,4 @@
-import initComponent from '../helper/init-component';
+import initComponent from './init-component';
 import Data from '../runtime/data';
 import {LifeCycle, LifeCycleKEY, LifeCycleType} from '../helper/life-cycle';
 import isDataChangeByElement from './data-change-by-el';

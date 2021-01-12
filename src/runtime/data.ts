@@ -19,8 +19,10 @@ export default class Data {
         this.listeners = [];
     }
 
-    public get(expr: string) {
-        let value = this.raw[expr];
+    public get(expr: {paths: any}) {
+        let paths = expr.paths;
+        let value = this.raw[paths[0].value];
+
         return value;
     }
 

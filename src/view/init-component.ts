@@ -1,6 +1,6 @@
 // @ts-ignore
 import {parseComponentTemplate, defineComponent} from 'san';
-
+import preheatANode from './preheat-a-node';
 
 export default function initComponent (
     clazz: any,
@@ -24,6 +24,7 @@ export default function initComponent (
 
     if (!proto.hasOwnProperty('aNode')) {
         proto.aNode = parseComponentTemplate(clazz);
+        preheatANode(proto.aNode);
         console.log(proto.aNode, 'anode');
     }    
 }
