@@ -3,6 +3,7 @@
  */
 
 import TextNode from './text-node';
+import ForNode from './for-node';
 import createEl from '../dom/create-el'; 
 import {ExprType} from '../parser/expr-type';
 
@@ -80,6 +81,8 @@ function analyseANodeHotspot(aNode: any, stack: any[]) {
                 recordHotspotData(prop.expr, stack);
             });
 
+
+
             for (let key in aNode.directives) {
                 if (aNode.directives.hasOwnProperty(key)) {
                     let directive = aNode.directives[key];
@@ -96,6 +99,24 @@ function analyseANodeHotspot(aNode: any, stack: any[]) {
             aNode.children && aNode.children.forEach((child: any) => {
                 analyseANodeHotspot(child, stack);
             });
+
+            if (aNode.directives['for']) {
+                aNode.forRinsed = {
+                    children: aNode.children,
+                    props: aNode.props,
+                    events: aNode.events,
+                    tagName: aNode.tagName,
+                    vars: aNode.vars,
+                    hotspot: aNode.hotspot,
+                    directives: aNode.directives
+                }
+                // 这个的作用是？
+                aNode.hotspot.hasRootNode = true;
+                aNode.Clazz = ForNode;
+                // 这个捏
+                aNode.forRinsed.directives['for'] = null;
+                aNode = aNode.forRinsed;
+            }
         }
 
         stack.pop();
