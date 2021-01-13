@@ -11,3 +11,4 @@ todo list:
 - s-for功能的实现
 - trackby 优化
 - preheat中 对于s-for的处理
+- ts补充
