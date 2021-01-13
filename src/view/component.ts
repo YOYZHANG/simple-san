@@ -9,6 +9,7 @@ import insertBefore from '../dom/insert-before';
 import type {ANode} from 'san';
 import createNode from './create-node';
 import nextTick from '../utils/next-tick';
+import evalExpr from '../runtime/eval-expr';
 class Component {
     static template: string;
     private contentReady: boolean;
@@ -24,6 +25,8 @@ class Component {
     public aNode: ANode;
     public binds: any;
     public children: any [];
+    public scope: any;
+    public owner: any;
     constructor(options: {}) {
         this.lifeCycle = LifeCycle.start;
         this.children = [];
@@ -87,13 +90,11 @@ class Component {
     }
 
     private update(changes: any[]) {
-        console.log('update', changes);
         if (this.lifeCycle.disposed) {
             return;
         }
         // 不太明白，但先这种方式传入
         changes = this.dataChangeArr;
-        console.log(changes, 'changes after');
 
         // if (changes) {
         //     for (let changeIndex = 0; changeIndex < changes.length; changeIndex++) {
@@ -105,23 +106,24 @@ class Component {
         //             let updateExpr = bindItem.expr;
 
         //             if (!isDataChangeByElement(change, this, setExpr)) {
-        //                 // TODO: add this.scope
-        //                 let relation = changeExprCompare(changeExpr, updateExpr);
+        //                 // TODO: let relation = changeExprCompare(changeExpr, updateExpr);
+        //                 this.data.set(setExpr, evalExpr(updateExpr, this.scope, this.owner), {
+        //                     target: {
+        //                         node: this.owner
+        //                     }
+        //                 });
                         
-        //                 // 变更表达式是目标表达式的子项
-        //                 if (relation > CompareResult.EQUAL) {
-        //                     // do something
-        //                 }
-        //                 else {
-        //                     // do something
-        //                     // this.data.set(setExpr);
-        //                 }
         //             }
         //         }
         //     }
-
-        //     this.dataChangeArr && (this.dataChangeArr = null);
         // }
+
+        let dataChanges = this.dataChangeArr;
+        dataChanges && (this.dataChangeArr = null);
+
+        for (let i = 0; i < this.children.length; i++) {
+            this.children[i].update(dataChanges);
+        }
 
 
         this.toPhase(LifeCycleKEY.updated);

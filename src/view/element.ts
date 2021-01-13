@@ -2,7 +2,7 @@ import insertBefore from '../dom/insert-before';
 import {LifeCycle, LifeCycleKEY, LifeCycleType} from '../helper/life-cycle';
 import createNode from './create-node';
 import createEl from '../dom/create-el';
-
+import changesIsInDataRef from '../runtime/changes-is-in-dataRef';
 export default class Element {
     public tagName: string;
     public lifeCycle: LifeCycleType;
@@ -40,15 +40,22 @@ export default class Element {
         this.lifeCycle = LifeCycle.attached;
     }
 
+    public update(changes: []) {
+        let dataHotspot = this.aNode.hotspot.data;
+        if (dataHotspot && changesIsInDataRef(changes, dataHotspot)) {
+            for (var i = 0, l = this.children.length; i < l; i++) {
+                this.children[i].update(changes);
+            }
+        }
+    }
+
     private handleChildNodes() {
         if (this.contentReady) {
             return;
         }
 
-        console.log(this.aNode.children, 'this.aNode.children');
         for (let i = 0; i < this.aNode.children.length; i++) {
             let childANode = this.aNode.children[i];
-            console.log(childANode, 'childANode');
             let child = createNode(childANode, this, this.scope, this.owner);
             this.children.push(child);
             

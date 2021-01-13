@@ -19,5 +19,5 @@ let MyApp = san.defineComponent({
 });
 
 let myApp = new MyApp();
-// myApp.data.set('name', 'SAN');
+myApp.data.set('name', 'SAN');
 myApp.attach(document.body);
