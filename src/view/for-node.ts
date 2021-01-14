@@ -1,6 +1,11 @@
 import {ExprType} from "../parser/expr-type";
 import evalExpr from "../runtime/eval-expr";
+import createNode from "./create-node";
+import insertBefore from '../dom/insert-before';
+import inherits from "../utils/inherits";
+import Data from "../runtime/data";
 export default class ForNode {
+    private id: any;
     public aNode: any;
     public owner: any;
     public scope: any;
@@ -17,8 +22,7 @@ export default class ForNode {
         this.scope = scope;
         this.parent = parent;
         this.param = aNode.directives['for'];
-
-        console.log(this.param, 'sfor param');
+        this.children = [];
 
         this.itemPaths = [
             {
@@ -34,7 +38,9 @@ export default class ForNode {
         };  
     }
 
-    attach() {
+    attach(parentEl: any) {
+        this.el = this.el || document.createComment(this.id);
+        insertBefore(this.el, parentEl);
         this.listData = evalExpr(this.param.value, this.scope, this.owner);
         this.createChildren();
     }
@@ -42,13 +48,14 @@ export default class ForNode {
     createChildren() {
         let parentEl = this.el.parentNode;
         let listData = this.listData;
-
         if (listData instanceof Array) {
             for (let i = 0; i < listData.length; i++) {
                 let childANode = this.aNode.forRinsed;
-                var child = new childANode.Clazz(childANode, this, new ForItemData(this, listData[i], i), this.owner);
+                var child = childANode.Clazz
+                    ? new childANode.Clazz(childANode, this, new ForItemData(this, listData[i], i), this.owner)
+                    : createNode(childANode, parent, new ForItemData(this, listData[i], i), this.owner);
                 this.children.push(child);
-                child.attach(parentEl, this.el);
+                child.attach(parentEl);
             }
         }
     }
@@ -72,3 +79,5 @@ class ForItemData {
         this.raw[this.indexName] = index;
     }
 }
+
+inherits(ForItemData, Data);

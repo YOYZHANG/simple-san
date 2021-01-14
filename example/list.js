@@ -2,9 +2,13 @@ import san from '../src/index';
 
 let MyApp = san.defineComponent({
     template: '<ul><li san-for="item in list">{{item}}</li></ul>',
-
+    initData: function() {
+        return {
+            list: ['san', 'er', 'esui', 'etpl', 'esl']
+        };
+    },
     attached: function () {
-        this.data.set('list', ['san', 'er', 'esui', 'etpl', 'esl']);
+        // this.data.set('list', ['san', 'er', 'esui', 'etpl', 'esl']);
     }
 });
 

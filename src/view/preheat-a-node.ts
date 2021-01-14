@@ -108,9 +108,9 @@ function analyseANodeHotspot(aNode: any, stack: any[]) {
                     tagName: aNode.tagName,
                     vars: aNode.vars,
                     hotspot: aNode.hotspot,
-                    directives: aNode.directives
+                    directives: Object.assign({}, aNode.directives)
                 }
-                // 这个的作用是？
+
                 aNode.hotspot.hasRootNode = true;
                 aNode.Clazz = ForNode;
                 // 这个捏

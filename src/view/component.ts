@@ -15,11 +15,12 @@ class Component {
     private contentReady: boolean;
     private dataChangeArr: any[] | null;
     private sbindData: any;
+    private rootNode: any;
     public data: any;
     public components: any;
     public lifeCycle: LifeCycleType;
     public tagName: string;
-    public elementNode: any;
+    public el: any;
     public initData: () => any;
     public needUpdateRender: boolean;
     public aNode: ANode;
@@ -58,7 +59,7 @@ class Component {
 
             me.dataChangeArr.push(change);
         }
-        console.log(this.data);
+
         this.data.listen(dataChanger);
     }
 
@@ -79,11 +80,20 @@ class Component {
             return;
         }
 
-        this.elementNode = this.elementNode || createEl(this.tagName);
-        // 触发生命周期
-        this.toPhase(LifeCycleKEY.created);
+        let hasRootNode = this.aNode.hotspot.hasRootNode
 
-        insertBefore(this.elementNode, parentEl);
+        if (hasRootNode) {
+            this.rootNode = this.rootNode || createNode(this.aNode, this, this.data, this);
+            this.rootNode.attach(parentEl);
+            this.toPhase(LifeCycleKEY.created);
+        }
+        else {
+            this.el = this.el || createEl(this.tagName);
+            // 触发生命周期
+            this.toPhase(LifeCycleKEY.created);
+
+            insertBefore(this.el, parentEl);
+        }
         // 处理子节点
         this.handleChildNodes();
         this.toPhase(LifeCycleKEY.attached);
@@ -137,9 +147,11 @@ class Component {
         // 疑问： children 的生命周期什么时候触发？
         for (let i = 0; i < this.aNode.children.length; i++ ) {
             let childANode = this.aNode.children[i];
-            let child = createNode(childANode, this, this.data, this);
+            let child =  childANode.Clazz
+                ? new childANode.Clazz(childANode, this, this.data, this)
+                : createNode(childANode, this, this.data, this);
             this.children.push(child);
-            child.attach(this.elementNode);
+            child.attach(this.el);
         }
 
         this.contentReady = true;
