@@ -1,12 +1,16 @@
-export const CompareResult = {
-    NO_RELATION: 0,
-    PARENT: 1,
-    EQUAL: 2,
-    CHILD: 3
-};
+/**
+ * Copyright (c) Baidu Inc. All rights reserved.
+ *
+ * This source code is licensed under the MIT license.
+ * See LICENSE file in the project root for license information.
+ *
+ * @file 比较变更表达式与目标表达式之间的关系
+ */
+
+import {ExprType} from '../parser/expr-type';
+import evalExpr from './eval-expr';
 
 /**
- *
  * 比较变更表达式与目标表达式之间的关系，用于视图更新判断
  * 视图更新需要根据其关系，做出相应的更新行为
  *
@@ -14,30 +18,114 @@ export const CompareResult = {
  * 1: 变更表达式是目标表达式的母项(如a与a.b) 或 表示需要完全变化
  * 2: 变更表达式是目标表达式相等
  * >2: 变更表达式是目标表达式的子项，如a.b.c与a.b 
- * 
- * @param changeExpr 
- * @param expr 
+ *
+ * @inner
+ * @param {Object} changeExpr 目标表达式
+ * @param {Array} exprs 多个源表达式
+ * @param {Data} data 表达式所属数据环境
+ * @return {number}
  */
-export function changeExprCompare(changeExpr: any, expr: any) {
-    const paths = expr.paths;
-    const pathsLen = paths.length;
-    const changePaths = changeExpr.paths;
-    const changeLen = changePaths.length;
-    for (let i = 0; i < pathsLen; i++) {
-        let path = paths[i];
-        let changePath = changePaths[i];
-        if (changePath !== path) {
-            if (changePath === undefined) {
-                return CompareResult.PARENT;
-            }
-
-            return CompareResult.NO_RELATION;
-
+export function changeExprCompareExprs(changeExpr: any, exprs: any, data?: any) {
+    for (var i = 0, l = exprs.length; i < l; i++) {
+        if (changeExprCompare(changeExpr, exprs[i], data)) {
+            return 1;
         }
     }
-    if (changeLen > pathsLen) {
-        return CompareResult.CHILD;
-    }
-    return CompareResult.EQUAL;
 
+    return 0;
+}
+
+/**
+ * 比较变更表达式与目标表达式之间的关系，用于视图更新判断
+ * 视图更新需要根据其关系，做出相应的更新行为
+ *
+ * 0: 完全没关系
+ * 1: 变更表达式是目标表达式的母项(如a与a.b) 或 表示需要完全变化
+ * 2: 变更表达式是目标表达式相等
+ * >2: 变更表达式是目标表达式的子项，如a.b.c与a.b
+ *
+ * @param {Object} changeExpr 变更表达式
+ * @param {Object} expr 要比较的目标表达式
+ * @param {Data} data 表达式所属数据环境
+ * @return {number}
+ */
+export function changeExprCompare(changeExpr: any, expr: any, data?: any): any {
+    // if (!expr.dynamic) {
+    //     return 0;
+    // }
+
+    switch (expr.type) {
+        case ExprType.ACCESSOR:
+            var paths = expr.paths;
+            var pathsLen = paths.length;
+            var changePaths = changeExpr.paths;
+            var changeLen = changePaths.length;
+
+            var result = 1;
+            for (var i = 0; i < pathsLen; i++) {
+                var pathExpr = paths[i];
+                var pathExprValue = pathExpr.value;
+
+                if (pathExprValue == null && changeExprCompare(changeExpr, pathExpr, data)) {
+                    result = 1;
+                    break;
+                }
+
+                if (result && i < changeLen
+                    /* eslint-disable eqeqeq */
+                    && (pathExprValue || evalExpr(pathExpr, data)) != changePaths[i].value
+                    /* eslint-enable eqeqeq */
+                ) {
+                    result = 0;
+                }
+            }
+
+            if (result) {
+                result = Math.max(1, changeLen - pathsLen + 2);
+            }
+            return result;
+
+        case ExprType.UNARY:
+            return changeExprCompare(changeExpr, expr.expr, data) ? 1 : 0;
+
+
+        case ExprType.TEXT:
+        case ExprType.BINARY:
+        case ExprType.TERTIARY:
+            return changeExprCompareExprs(changeExpr, expr.segs, data);
+
+        case ExprType.ARRAY:
+        case ExprType.OBJECT:
+            for (var i = 0; i < expr.items.length; i++) {
+                if (changeExprCompare(changeExpr, expr.items[i].expr, data)) {
+                    return 1;
+                }
+            }
+
+            break;
+
+        case ExprType.INTERP:
+            if (changeExprCompare(changeExpr, expr.expr, data)) {
+                return 1
+            }
+            else {
+                for (var i = 0; i < expr.filters.length; i++) {
+                    if (changeExprCompareExprs(changeExpr, expr.filters[i].args, data)) {
+                        return 1;
+                    }
+                }
+            }
+
+            break;
+
+        case ExprType.CALL:
+            if (changeExprCompareExprs(changeExpr, expr.name.paths, data)
+                || changeExprCompareExprs(changeExpr, expr.args, data)
+            ) {
+                return 1
+            }
+            break;
+    }
+
+    return 0;
 }

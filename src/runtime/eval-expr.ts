@@ -1,7 +1,7 @@
 import {ExprType} from '../parser/expr-type';
 
 
-export default function evalExpr(expr: any, data: any, owner: any): any {
+export default function evalExpr(expr: any, data: any, owner?: any): any {
     if (expr.value != null) {
         return expr.value;
     }

@@ -3,7 +3,7 @@
 */
 
 import DataChangeType from '../runtime/data-change-type';
-
+import {ExprType} from '../parser/expr-type';
 interface Change {
     type: any,
     expr: any,
@@ -28,11 +28,21 @@ export default class Data {
 
     public set(expr: any, value: any) {
         // 赋值操作
-        this.raw[expr] = value;
+
+
+        let newExpr = {
+            type: ExprType.ACCESSOR,
+            paths: [{
+                type: ExprType.STRING,
+                value: expr
+            }]   
+        }
+        let prop = newExpr.paths[0].value;
+        this.raw[prop] = value;
         // 派发事件
         this.fire({
             type: DataChangeType.SET,
-            expr: expr,
+            expr: newExpr,
             value: value
         });
     }

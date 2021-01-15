@@ -2,7 +2,7 @@ import initComponent from './init-component';
 import Data from '../runtime/data';
 import {LifeCycle, LifeCycleKEY, LifeCycleType} from '../helper/life-cycle';
 import isDataChangeByElement from './data-change-by-el';
-import {changeExprCompare, CompareResult} from '../runtime/change-expr-compare';
+import {changeExprCompare} from '../runtime/change-expr-compare';
 import createEl from '../dom/create-el';
 import insertBefore from '../dom/insert-before';
 // @ts-ignore
