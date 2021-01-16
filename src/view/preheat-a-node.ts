@@ -6,6 +6,7 @@ import TextNode from './text-node';
 import ForNode from './for-node';
 import createEl from '../dom/create-el'; 
 import {ExprType} from '../parser/expr-type';
+import getPropHandler from './get-prop-handler';
 
 export default function preheatAnode(aNode: any) {
     let stack: any = [];
@@ -56,7 +57,7 @@ function analyseANodeHotspot(aNode: any, stack: any[]) {
             recordHotspotData(aNode.textExpr, stack);
         }
         else {
-            let sourceNode;
+            let sourceNode: any;
             if (aNode.tagName) {
                 sourceNode = createEl(aNode.tagName);
             }
@@ -98,6 +99,22 @@ function analyseANodeHotspot(aNode: any, stack: any[]) {
 
             aNode.children && aNode.children.forEach((child: any) => {
                 analyseANodeHotspot(child, stack);
+            });
+
+            // ------data analyse end
+
+            // ------props start
+
+            aNode.props.forEach((prop: any, index: any) => {
+                aNode.hotspot.props[prop.name] = index;
+                prop.handler = getPropHandler(aNode.tagName, prop.name);
+
+                if (prop.expr.value !=null) {
+                    if (sourceNode) {
+                        prop.handler(sourceNode, prop.expr.value, prop.name, aNode);
+                    }
+                }
+
             });
 
             if (aNode.directives['for']) {

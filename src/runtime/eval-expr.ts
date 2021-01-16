@@ -1,5 +1,6 @@
 import {ExprType} from '../parser/expr-type';
 
+import {DEFAULT_FILTERS} from './default-filters';
 
 export default function evalExpr(expr: any, data: any, owner?: any): any {
     if (expr.value != null) {
@@ -13,6 +14,19 @@ export default function evalExpr(expr: any, data: any, owner?: any): any {
         
         case ExprType.INTERP:
             value = evalExpr(expr.expr, data, owner);
+
+            if (owner) {
+                for (let i = 0; i < expr.filters.length; i++) {
+                    let filter = expr.filters[i];
+                    let filterName = filter.name.paths[0].value;
+
+                    switch (filterName) {
+                        case '_xclass':
+                            value = DEFAULT_FILTERS[filterName](value, evalExpr(filter.args[0], data, owner));
+                            break;
+                    }
+                }
+            }
 
             if (value == null) {
                 value = '';

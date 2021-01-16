@@ -3,6 +3,7 @@ import {LifeCycle, LifeCycleKEY, LifeCycleType} from '../helper/life-cycle';
 import createNode from './create-node';
 import createEl from '../dom/create-el';
 import changesIsInDataRef from '../runtime/changes-is-in-dataRef';
+import evalExpr from '../runtime/eval-expr';
 export default class Element {
     public tagName: string;
     public lifeCycle: LifeCycleType;
@@ -33,6 +34,8 @@ export default class Element {
         if (!this.el) {
             this.el = createEl(this.tagName);
             this.lifeCycle = LifeCycle.created;
+            let props = this.aNode.props;
+            this.handleAttributes(props);
         }
 
         insertBefore(this.el, parentEl);
@@ -63,5 +66,16 @@ export default class Element {
         }
 
         this.contentReady = true;
+    }
+
+    private handleAttributes(props: any[]) {
+        for (var i = 0; i < props.length; i++) {
+            let prop = props[i];
+            let value = evalExpr(prop.expr, this.scope, this.owner);
+
+            if (value) {
+                prop.handler(this.el, value, prop.name, this);
+            }
+        }
     }
 }

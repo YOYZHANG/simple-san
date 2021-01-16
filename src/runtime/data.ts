@@ -29,13 +29,15 @@ export default class Data {
     public set(expr: any, value: any) {
         // 赋值操作
 
-
         let newExpr = {
             type: ExprType.ACCESSOR,
             paths: [{
                 type: ExprType.STRING,
                 value: expr
             }]   
+        }
+        if (this.get(newExpr) === value) {
+            return;
         }
         let prop = newExpr.paths[0].value;
         this.raw[prop] = value;

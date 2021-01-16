@@ -6,7 +6,6 @@ import inherits from "../utils/inherits";
 import Data from "../runtime/data";
 import {changeExprCompare} from "../runtime/change-expr-compare";
 import changesIsInDataRef from "../runtime/changes-is-in-dataRef";
-import { NodeType } from "san/types";
 import DataChangeType from "../runtime/data-change-type";
 export default class ForNode {
     private id: any;

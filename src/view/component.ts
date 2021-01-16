@@ -10,12 +10,18 @@ import type {ANode} from 'san';
 import createNode from './create-node';
 import nextTick from '../utils/next-tick';
 import evalExpr from '../runtime/eval-expr';
+import nodeSBindInit from './node-s-bind-init';
+import getEventListener from './get-event-listener';
+import elementOwnAttached from './element-own-attached';
 class Component {
     static template: string;
     private contentReady: boolean;
     private dataChangeArr: any[] | null;
     private sbindData: any;
     private rootNode: any;
+    private source: any;
+    private listeners: any;
+    private nativeEvents: any[];
     public data: any;
     public components: any;
     public lifeCycle: LifeCycleType;
@@ -36,6 +42,7 @@ class Component {
         const clazz = this.constructor;
         // 解析 aNode 并初始化子 components
         initComponent(clazz, this);
+        // this.initEvents();
         this.toPhase(LifeCycleKEY.compiled);
 
 
@@ -43,7 +50,7 @@ class Component {
         this.data = new Data(initData);
         this.initDataChanger();
         // TODO: 实现s-bind
-        // this.sbindData = nodeSBindInit(this.aNode.directives.bind, this.data, this);
+        this.sbindData = nodeSBindInit(this.aNode.directives.bind, this.data, this);
         this.toPhase(LifeCycleKEY.inited);
 
         this.tagName = this.aNode.tagName || 'div';
@@ -89,14 +96,27 @@ class Component {
         }
         else {
             this.el = this.el || createEl(this.tagName);
+            let props = this.aNode.props;
+            this.handleAttributes(props);
             // 触发生命周期
             this.toPhase(LifeCycleKEY.created);
 
             insertBefore(this.el, parentEl);
+            // 处理子节点
+            this.handleChildNodes();
+            elementOwnAttached.call(this);
         }
-        // 处理子节点
-        this.handleChildNodes();
         this.toPhase(LifeCycleKEY.attached);
+    }
+
+    public on(name: string, listener: any, declaration?: any) {
+        if (typeof listener === 'function') {
+            if (!this.listeners[name]) {
+                this.listeners[name] = [];
+            }
+
+            this.listeners[name].push({fn: listener, declaration: declaration});
+        }
     }
 
     private update(changes: any[]) {
@@ -155,6 +175,36 @@ class Component {
         }
 
         this.contentReady = true;
+    }
+
+    private handleAttributes(props: any) {
+        for (var i = 0, l = props.length; i < l; i++) {
+            var prop = props[i];
+            var value = evalExpr(prop.expr, this.data, this);
+            if (value) {
+                prop.handler(this.el, value, prop.name, this);
+            }
+        }
+    }
+
+    private initEvents() {
+        if (!this.source) {
+            return;
+        }
+
+        for (let i = 0; i < this.source.events.length; i++) {
+            let eventBind = this.source.events[i];
+            if (eventBind.modifier.native) {
+                this.nativeEvents.push(eventBind);
+            }
+            else {
+                this.on(
+                    eventBind.name,
+                    getEventListener(eventBind, this.owner, this.scope, true),
+                    eventBind
+                );
+            }
+        }
     }
 }
 

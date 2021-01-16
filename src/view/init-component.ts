@@ -25,6 +25,5 @@ export default function initComponent (
     if (!proto.hasOwnProperty('aNode')) {
         proto.aNode = parseComponentTemplate(clazz);
         preheatANode(proto.aNode);
-        console.log(proto.aNode, 'anode');
     }    
 }
