@@ -8,10 +8,7 @@ the simplest san tags
 
 todo list:
 
-- 支持属性解析
-- s-for功能的实现- 更新节点
 - trackby 优化
-- preheat中 对于s-for的处理
 - ts补充
 - element的属性 & 事件 静态渲染
 - owner scope 管理
